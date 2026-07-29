@@ -46,10 +46,10 @@ Click the “Generate new application” (or "Saves changes") button at the bott
 ## Running the code
 
 There are two ways you can run this code:
-* Locally on your machine
-* On GitHub Codespaces
+* [Locally on your machine](#running-the-code-locally)
+* [On GitHub Codespaces](#running-the-code-on-github-codespaces)
 
-The biggest difference between the two is handling secrets:
+The biggest difference between the two is how each method handles secrets.
 
 ### Obtaining your Vonage secrets
 
@@ -60,6 +60,13 @@ Click on the "Save changes button" and also note your Application ID.
 ![A screenshot of the application Edit menu in the Vonage developer dashboard showing where to generate a public and private key.](images/202606_screenshot_verify-generate-key.png)
 
 ![A screenshot of the Video application in the Vonage developer dashboard indicating where you can find the application ID.](images/202606_screenshot_verify-application-id.png)
+
+In summary, these are the secrets you will need from Vonage in order for your app to work:
+
+| Variable name           | Variable value                                                                              |
+|-------------------------|---------------------------------------------------------------------------------------------|
+| VONAGE_APPLICATION_ID   | This is the Vonage-generated ID of the Voice application you created for this sample code   |
+| VONAGE_PRIVATE_KEY_PATH | This is the path to the **private.key** file you downloaded from the developer dashboard    |
 
 ## Running the code locally
 
@@ -84,18 +91,21 @@ pip install -r requirements.txt
 
 Move your private key file to your project directory and configure the variables in the `.env_template` file accordingly:
 
-| Variable name           | Variable value                                                                              |
-|-------------------------|---------------------------------------------------------------------------------------------|
-| VONAGE_APPLICATION_ID   | This is the Vonage-generated ID of the Voice application you created for this sample code   |
-| VONAGE_PRIVATE_KEY_PATH | This is the path to the **private.key** file you downloaded from the developer dashboard    |
+```
+VONAGE_APPLICATION_ID=your-application-id
+VONAGE_PRIVATE_KEY_PATH=path-to-your-private-key-file
+```
 
 Then update the name of the file from `.env_template` to `.env`. You can learn more about handling environment variables in Python [here](https://vonage.dev/4wteA6n).
 
 ### 5. Run the app
 
 To spin up the app, run the following from the project root directory:
+```
+fastapi dev
+```
 
-`fastapi dev`
+Now you can [try out the sample email verification app](#trying-out-the-email-verification-app).
 
 ## Running the code on GitHub Codespaces
 
@@ -111,18 +121,35 @@ First fork this repo to your own GitHub account.
 2. In the sidebar, under "Code, planning, and automation", select **Codespaces**
 3. To the right of **Codespaces secrets**, click **New secret**
 4. Under **Name**, type or copy and paste `VONAGE_APPLICATION_ID`
-5. Under **Value**, copy and paste in the application ID you obtained earlier from the Vonage Developer Dashboard
+5. Under **Value**, copy and paste in the application ID you obtained earlier from the Vonage developer dashboard
 6. Select the "Repository access" drop-down menu, then click on the name of this repository
 7. Select **Add secret**
-8. Repeat steps 4 - 7, this time with the **Name** `VONAGE_PRIVATE_KEY_PATH` and the **Value** copied and pasted from the contents of the `private.key` file downloaded from the Vonage Developer Dashboard
+8. Repeat steps 4 - 7, this time with the **Name** `VONAGE_PRIVATE_KEY_PATH` and the **Value** copied and pasted from the contents of the `private.key` file downloaded from the Vonage developer dashboard
 
 For more information on adding secrets to Codespaces, refer to the [GitHub documentation](https://docs.github.com/en/codespaces/managing-your-codespaces/managing-your-account-specific-secrets-for-github-codespaces#about-secrets-for-github-codespaces).
 
-### 3. 
+### 3. Create a codespace
 
-### 6. Try it out!
+From the forked repo in your GitHub account, click the green "Code" button and from the menu that appears, select the "Codespaces" tab. Then click the green "Create codespace" button.
 
-In your browser, navigate to `http://127.0.0.1:8000`. You should see a webpage inviting you to "Try out the Vonage Verify
+![A screenshot of the "Create codespace" process on GitHub.](images/202607_pydantic-verify_screenshot_create-codespace.png)
+
+This will open up a new browser tab and begin the creation of a new codespace. It will take a few moments to complete the process.
+
+To learn more about creating a codespace, please refer to the [GitHub documentation](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository).
+
+### 5. Run the app
+
+To spin up the app, run the following in the codespace terminal:
+```
+fastapi dev
+```
+
+Now you can [try out the sample email verification app](#trying-out-the-email-verification-app).
+
+# Trying Out the Email Verification App
+
+Whether you are running the app locally or on GitHub Codespaces, in your browser, navigate to `http://127.0.0.1:8000`. You should see a webpage inviting you to "Try out the Vonage Verify
 API by providing your email" with a text field for your email address.
 
 ![A screenshot of the initial email input page.](images/202606_pydantic-verify_screenshot_index.png)
@@ -133,47 +160,17 @@ You should be redirected to a page that asks you to provide the code sent to you
 
 If the code provided matches the code generated and sent by Vonage, then you'll be redirected to another page featuring an animated gif.
 
-## Running the tests
+# Running the Tests
 
-This repo also provides a demonstration comparing the use of Pydantic to create and validate a Verify API request vs. manually creating the request.
-
-**Please note** that these tests don't use any mocks, so you will be making real API calls which may incur costs.
-
-### 1. Run the tests
+This repo also contains a suite of unit tests for the routes in `main.py` (`tests/test_main.py`). These tests use Python's `unittest` and builtin `mock` tools to simulate calls to the Vonage API.
 
 Run the tests with the following command:
 
 ```
-python -m unittest -v tests/test_pydantic_demo.py
+python -m unittest tests/test_main.py -v
 ```
 
-Running the tests should produce the following outcome:
-
-```
-test_with_pydantic (tests.test_main.TestMain.test_with_pydantic) ... ERROR
-test_without_pydantic (tests.test_main.TestMain.test_without_pydantic) ... FAIL
-```
-
-### What the tests tell us
-
-What's important to note here is that the test using Pydantic _errors out_ as opposed to _failing_. This is because Pydantic catches the incorrect request body parameters when the `VerifyRequest` object is created:
-
-```
-pydantic_core._pydantic_core.ValidationError: 1 validation error for EmailChannel
-to
-  Input should be a valid string [type=string_type, input_value=678910, input_type=int]
-    For further information visit https://errors.pydantic.dev/2.13/v/string_type
-```
-
-The test without Pydantic _fails_ because the result is a `422` and not a `202` which is the [API response for invalid parameters](https://developer.vonage.com/en/api/verify.v2?source=verify#newRequest-responses):
-
-```
-AssertionError: 422 != 202 : Test without Pydantic failed with: 422. Expected: 202
-```
-
-This indicates that the Verify endpoint was called despite invalid parameters -- something that Pydantic caught _before_ making a call to the API. This demonstrates how Pydantic validates models at creation and can help prevent wasted API calls.
-
-## References
+# References
 
 - [Python Environment Variables (Env Vars): A Primer](https://vonage.dev/4wteA6n)
 - [A Comprehensive Guide on Working with Python Virtual Environments](https://vonage.dev/42D6eeT)
