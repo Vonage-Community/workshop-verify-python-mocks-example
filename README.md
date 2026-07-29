@@ -74,7 +74,7 @@ In summary, these are the secrets you will need from Vonage in order for your ap
 
 Clone this repo and change directories to the project directory:
 ```
-git clone https://github.com/Vonage-Community/demo-verify-python-pydantic-example.git && cd demo-verify-python-pydantic-example
+git clone https://github.com/Vonage-Community/workshop-verify-python-mocks-example.git && cd workshop-verify-python-mocks-example
 ```
 ### 2. Set up your environment
 Set up your environment by first creating and activating a [Python virtual environment](https://vonage.dev/42D6eeT):
@@ -122,7 +122,7 @@ First fork this repo to your own GitHub account.
 3. To the right of **Codespaces secrets**, click **New secret**
 4. Under **Name**, type or copy and paste `VONAGE_APPLICATION_ID`
 5. Under **Value**, copy and paste in the application ID you obtained earlier from the Vonage developer dashboard
-6. Select the "Repository access" drop-down menu, then click on the name of this repository
+6. Select the "Repository access" drop-down menu, then click on the name of this repository (`workshop-verify-python-mocks-example`)
 7. Select **Add secret**
 8. Repeat steps 4 - 7, this time with the **Name** `VONAGE_PRIVATE_KEY_PATH` and the **Value** copied and pasted from the contents of the `private.key` file downloaded from the Vonage developer dashboard
 
