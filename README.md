@@ -27,7 +27,13 @@ This repository also serves as part of a workshop on using mocks in unit tests f
 
 ## Creating a Vonage Verify application
 
-You will need a Vonage developer account and a Verify application in order to run the code in this repository.
+### What is Vonage?
+
+Vonage is a cloud-based communications platform that gives you the tools to embed communication capabilities directly into your own applications and services​.
+
+Rather than building communication infrastructure from scratch, you can use Vonage APIs to add voice, video, messaging, verification, and other network-level capabilities to products​.
+
+To run the code in this repo, you need a Vonage developer account and a Verify application.
 
 ### 1. Create a Vonage account
 
