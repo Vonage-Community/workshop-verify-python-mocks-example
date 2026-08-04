@@ -53,6 +53,7 @@ class TestSendCode(unittest.TestCase):
         expected_result = 200
         test_result = self.client.post("/send-code", data=test_email)
 
+        # Asserts begin
         self.assertEqual(
             test_result.status_code,
             expected_result,
