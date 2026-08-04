@@ -27,7 +27,7 @@ class TestSendCode(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 
-    @patch("vonage_handlers.start_email_verification")
+    @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_success(self, mock_start_verification):
 
         test_data = {"email": "test@example.com", "request_id": "test-request-id"}
@@ -50,7 +50,7 @@ class TestSendCode(unittest.TestCase):
         self.assertNotIn("Invalid request. Please try again.", test_result.text)
         self.assertNotIn("Something went wrong. Please try again.", test_result.text)
 
-    @patch("vonage_handlers.start_email_verification")
+    @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_failure_authentication_error(
         self, mock_start_verification
     ):
@@ -68,7 +68,7 @@ class TestSendCode(unittest.TestCase):
         )
         self.assertIn("Invalid verification code.", test_result.text)
 
-    @patch("vonage_handlers.start_email_verification")
+    @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_failure_http_request_error_400(
         self, mock_start_verification
     ):
@@ -86,7 +86,7 @@ class TestSendCode(unittest.TestCase):
         )
         self.assertIn("Invalid request. Please try again.", test_result.text)
 
-    @patch("vonage_handlers.start_email_verification")
+    @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_failure_http_request_error_4xx(
         self, mock_start_verification
     ):
@@ -113,7 +113,7 @@ class TestCheckCode(unittest.TestCase):
     def tearDown(self):
         verify_sessions.clear()
 
-    @patch("vonage_handlers.check_code")
+    @patch("main.vonage_handlers.check_code")
     def test_check_code_success(self, mock_check_code):
 
         test_data = {
@@ -160,7 +160,7 @@ class TestCheckCode(unittest.TestCase):
         )
         self.assertIn("Session expired. Please try again.", test_result.text)
 
-    @patch("vonage_handlers.check_code")
+    @patch("main.vonage_handlers.check_code")
     def test_check_code_failure_authentication_error(self, mock_check_code):
 
         test_data = {
@@ -180,7 +180,7 @@ class TestCheckCode(unittest.TestCase):
         )
         self.assertIn("Invalid verification code.", test_result.text)
 
-    @patch("vonage_handlers.check_code")
+    @patch("main.vonage_handlers.check_code")
     def test_check_code_failure_http_request_error_400(self, mock_check_code):
 
         test_data = {
@@ -200,7 +200,7 @@ class TestCheckCode(unittest.TestCase):
         )
         self.assertIn("Invalid code. Please try again.", test_result.text)
 
-    @patch("vonage_handlers.check_code")
+    @patch("main.vonage_handlers.check_code")
     def test_check_code_failure_http_request_error_4xx(self, mock_check_code):
 
         test_data = {
