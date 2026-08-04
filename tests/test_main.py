@@ -24,28 +24,41 @@ def make_http_error(status_code: int) -> HttpRequestError:
 
 
 class TestSendCode(unittest.TestCase):
+    """Test case for the send_code route"""
+
     def setUp(self):
+        """
+        Creates a FastAPI TestClient fixture before running each test method
+        We use this particular test fixture so we can test the FastAPI code without spinning up a server
+        """
         self.client = TestClient(app)
 
     @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_success(self, mock_start_verification):
+        """
+        Test to see if a successful response from Vonage
+        results in rendering the verify.html template
+        """
 
-        test_data = {"email": "test@example.com", "request_id": "test-request-id"}
+        # Data to use for the test
+        test_email = {"email": "test@example.com"}
+        test_request_id = "test-request-id"
 
-        mock_verification_response = StartVerificationResponse(
-            request_id=test_data["request_id"]
+        # Instantiate a real StartVerificationResponse object for the mock to return
+        test_verification_response = StartVerificationResponse(
+            request_id=test_request_id
         )
-        mock_start_verification.return_value = mock_verification_response
+        mock_start_verification.return_value = test_verification_response
 
         expected_result = 200
-        test_result = self.client.post("/send-code", data=test_data)
+        test_result = self.client.post("/send-code", data=test_email)
 
         self.assertEqual(
             test_result.status_code,
             expected_result,
             msg=f"test_start_email_verification_success failed with: {test_result.status_code}. Expected: {expected_result}",
         )
-        mock_start_verification.assert_called_once_with(email=test_data["email"])
+        mock_start_verification.assert_called_once_with(email=test_email["email"])
         self.assertNotIn("Invalid verification code.", test_result.text)
         self.assertNotIn("Invalid request. Please try again.", test_result.text)
         self.assertNotIn("Something went wrong. Please try again.", test_result.text)
@@ -54,12 +67,16 @@ class TestSendCode(unittest.TestCase):
     def test_start_email_verification_failure_authentication_error(
         self, mock_start_verification
     ):
+        """
+        Test to see if an AuthenticationError from Vonage
+        results in rendering the index.html template with appropriate error message
+        """
 
-        test_data = {"email": "test@example.com"}
+        test_email = {"email": "test@example.com"}
         mock_start_verification.side_effect = make_auth_error()
 
         expected_result = 200
-        test_result = self.client.post("/send-code", data=test_data)
+        test_result = self.client.post("/send-code", data=test_email)
 
         self.assertEqual(
             test_result.status_code,
@@ -72,12 +89,16 @@ class TestSendCode(unittest.TestCase):
     def test_start_email_verification_failure_http_request_error_400(
         self, mock_start_verification
     ):
+        """
+        Test to see if a 400 HttpError from Vonage
+        results in rendering the index.html template with appropriate error message
+        """
 
-        test_data = {"email": "test@example.com"}
+        test_email = {"email": "test@example.com"}
         mock_start_verification.side_effect = make_http_error(400)
 
         expected_result = 200
-        test_result = self.client.post("/send-code", data=test_data)
+        test_result = self.client.post("/send-code", data=test_email)
 
         self.assertEqual(
             test_result.status_code,
@@ -90,12 +111,16 @@ class TestSendCode(unittest.TestCase):
     def test_start_email_verification_failure_http_request_error_4xx(
         self, mock_start_verification
     ):
+        """
+        Test to see if other 4xx HttpError from Vonage
+        results in rendering the index.html template with appropriate error message
+        """
 
-        test_data = {"email": "test@example.com"}
+        test_email = {"email": "test@example.com"}
         mock_start_verification.side_effect = make_http_error(401)
 
         expected_result = 200
-        test_result = self.client.post("/send-code", data=test_data)
+        test_result = self.client.post("/send-code", data=test_email)
 
         self.assertEqual(
             test_result.status_code,
@@ -106,9 +131,20 @@ class TestSendCode(unittest.TestCase):
 
 
 class TestCheckCode(unittest.TestCase):
+    """Test case for the check_code route"""
+
     def setUp(self):
+        """
+        Creates a FastAPI TestClient fixture before running each test method
+        We use this particular test fixture so we can test the FastAPI code without spinning up a server
+
+        Also creates a `verify_sessions` in-memory storage object
+        """
         self.client = TestClient(app)
         verify_sessions["test@example.com"] = "test-request-id"
 
     def tearDown(self):
+        """
+        Clear the in-memory `verify_sessions` storage before every test
+        """
         verify_sessions.clear()
