@@ -59,7 +59,7 @@ class TestSendCode(unittest.TestCase):
             msg=f"test_start_email_verification_success failed with: {test_result.status_code}. Expected: {expected_result}",
         )
         mock_start_verification.assert_called_once_with(email=test_email["email"])
-        self.assertNotIn("Invalid verification code.", test_result.text)
+        self.assertNotIn("Authentication error.", test_result.text)
         self.assertNotIn("Invalid request. Please try again.", test_result.text)
         self.assertNotIn("Something went wrong. Please try again.", test_result.text)
 
@@ -83,7 +83,7 @@ class TestSendCode(unittest.TestCase):
             expected_result,
             msg=f"test_start_email_verification_failure_authentication_error failed with: {test_result.status_code}. Expected: {expected_result}",
         )
-        self.assertIn("Invalid verification code.", test_result.text)
+        self.assertIn("Authentication error.", test_result.text)
 
     @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_failure_http_request_error_400(

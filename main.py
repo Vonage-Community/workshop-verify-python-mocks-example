@@ -29,7 +29,7 @@ async def send_code(request: Request, email: str = Form(...)):
         )
     except AuthenticationError:
         return templates.TemplateResponse(
-            request, "index.html", {"error": "Invalid verification code."}
+            request, "index.html", {"error": "Authentication error."}
         )
     except HttpRequestError as e:
         error = (
