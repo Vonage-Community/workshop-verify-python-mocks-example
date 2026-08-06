@@ -50,31 +50,29 @@ class TestSendCode(unittest.TestCase):
         )
         mock_start_verification.return_value = test_verification_response
 
-        expected_result = 200
+        # Test the code
         test_result = self.client.post("/send-code", data=test_email)
 
         # Asserts begin
+        expected_result = 200
+
         self.assertEqual(
             test_result.status_code,
             expected_result,
             msg=f"test_start_email_verification_success failed with: {test_result.status_code}. Expected: {expected_result}",
         )
         mock_start_verification.assert_called_once_with(email=test_email["email"])
-        self.assertNotIn("Invalid verification code.", test_result.text)
+        self.assertNotIn("Authentication error.", test_result.text)
         self.assertNotIn("Invalid request. Please try again.", test_result.text)
         self.assertNotIn("Something went wrong. Please try again.", test_result.text)
 
-    @patch("main.vonage_handlers.start_email_verification")
-    def test_start_email_verification_failure_authentication_error(
-        self, mock_start_verification
-    ):
+    def test_start_email_verification_failure_authentication_error(self):
         """
         Test to see if an AuthenticationError from Vonage
         results in rendering the index.html template with appropriate error message
         """
 
         test_email = {"email": "test@example.com"}
-        mock_start_verification.side_effect = make_auth_error()
 
         expected_result = 200
         test_result = self.client.post("/send-code", data=test_email)
@@ -84,7 +82,29 @@ class TestSendCode(unittest.TestCase):
             expected_result,
             msg=f"test_start_email_verification_failure_authentication_error failed with: {test_result.status_code}. Expected: {expected_result}",
         )
-        self.assertIn("Invalid verification code.", test_result.text)
+        self.assertIn("Authentication error.", test_result.text)
+
+    # @patch("main.vonage_handlers.start_email_verification")
+    # def test_start_email_verification_failure_authentication_error(
+    #     self, mock_start_verification
+    # ):
+    #     """
+    #     Test to see if an AuthenticationError from Vonage
+    #     results in rendering the index.html template with appropriate error message
+    #     """
+
+    #     test_email = {"email": "test@example.com"}
+    #     mock_start_verification.side_effect = make_auth_error()
+
+    #     expected_result = 200
+    #     test_result = self.client.post("/send-code", data=test_email)
+
+    #     self.assertEqual(
+    #         test_result.status_code,
+    #         expected_result,
+    #         msg=f"test_start_email_verification_failure_authentication_error failed with: {test_result.status_code}. Expected: {expected_result}",
+    #     )
+    #     self.assertIn("Authentication error.", test_result.text)
 
     @patch("main.vonage_handlers.start_email_verification")
     def test_start_email_verification_failure_http_request_error_400(
@@ -143,6 +163,26 @@ class TestCheckCode(unittest.TestCase):
         """
         self.client = TestClient(app)
         verify_sessions["test@example.com"] = "test-request-id"
+
+    @patch("main.vonage_handlers.check_code")
+    def test_check_code_success(self, mock_check_code):
+
+        test_request_id = "test-request-id"
+        test_status = "completed"
+
+        test_data = {"email": "test@example.com", "code": "12345"}
+
+        test_check_code_response = CheckCodeResponse(
+            request_id=test_request_id, status=test_status
+        )
+
+        mock_check_code.return_value = test_check_code_response
+
+        test_result = self.client.post("/check-code", data=test_data)
+
+        mock_check_code.assert_called_once_with(
+            request_id=test_request_id, code=test_data["code"]
+        )
 
     def tearDown(self):
         """

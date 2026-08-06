@@ -6,7 +6,6 @@ from vonage_verify import (
     StartVerificationResponse,
     CheckCodeResponse,
 )
-from vonage_http_client import HttpRequestError
 
 client = Vonage(
     Auth(
